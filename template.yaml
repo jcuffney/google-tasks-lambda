@@ -26,6 +26,8 @@ Resources:
 
             Events:
 
+                # NOTE: suplemental events in non-commited file `events.yaml`
+                # copy them in before running `./deploy`
                 MorningTasks:
                     Type: Schedule
                     Properties:
@@ -33,16 +35,6 @@ Resources:
                         Input: >
                             {
                                 "title": "morning tasks",
-                                "details": "testing details"
-                            }
-
-                EveningTasks:
-                    Type: Schedule
-                    Properties:
-                        Schedule: cron(0 17 ? * * *)
-                        Input: >
-                            {
-                                "title": "evening tasks",
                                 "details": "testing details"
                             }
 

@@ -1,4 +1,5 @@
 const { google } = require('googleapis')
+
 const {
   ACCESS_TOKEN,
   REFRESH_TOKEN,
@@ -23,11 +24,15 @@ const authorize = () => {
 exports.handler = async (event, context, callback) => {
   const { detail } = event
 
+  // RFC 3339
+  const due = new Date()
+  due.setHours(due.getHours() - 8) // America/Los_Angeles
+
   const task = {
     tasklist: '@default',
     resource: {
       ...JSON.parse(detail),
-      due: new Date().toISOString()
+      due
     }
   }
 
