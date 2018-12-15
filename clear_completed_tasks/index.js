@@ -21,13 +21,8 @@ const authorize = () => {
   return oAuth2Client
 }
 
-exports.handler = async (event, context, callback) => {
-  try {
-    const auth = authorize()
-    const { tasks } = google.tasks({ version: 'v1', auth })
-    const res = await tasks.clear({ tasklist: '@default' })
-    callback(null, res)
-  } catch (error) {
-    callback(error, null)
-  }
+exports.handler = async () => {
+  const auth = authorize()
+  const { tasks } = google.tasks({ version: 'v1', auth })
+  const res = await tasks.clear({ tasklist: '@default' })
 }
