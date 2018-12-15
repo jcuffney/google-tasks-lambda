@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+    Function:
+        Timeout: 3
+
+Resources:
+
+    AddTaskFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: add-tasks-automation
+            Description: reoccuring google tasks insertion
+            CodeUri: add_task/
+            Handler: index.handler
+            Runtime: nodejs8.10
+            Environment:
+                Variables:
+                    # NOTE: when deploying, make sure these have values, but never commit
+                    CLIENT_ID:
+                    CLIENT_SECRET:
+                    ACCESS_TOKEN:
+                    REFRESH_TOKEN:
+                    EXPIRY_DATE:
+
+            Events:
+
+                MorningTasks:
+                    Type: Schedule
+                    Properties:
+                        Schedule: cron(0 6 ? * * *)
+                        Input: >
+                            {
+                                "title": "morning tasks",
+                                "details": "testing details"
+                            }
+
+                EveningTasks:
+                    Type: Schedule
+                    Properties:
+                        Schedule: cron(0 17 ? * * *)
+                        Input: >
+                            {
+                                "title": "evening tasks",
+                                "details": "testing details"
+                            }
+
+Outputs:
+
+    AddTaskFunction:
+      Description: "Add Task Lambda Function ARN"
+      Value:
+        Fn::GetAtt: AddTaskFunction.Arn

@@ -1,0 +1,59 @@
+{
+  "name": "add_task_automation",
+  "version": "1.0.0",
+  "description": "Add Task Automation",
+  "main": "src/index.js",
+  "repository": "https://github.com/jwc2790/google-tasks-automator",
+  "author": "Joseph Cuffney",
+  "license": "MIT",
+  "dependencies": {
+    "googleapis": "^27.0.0"
+  },
+  "scripts": {
+    "test": "mocha ./**/*.test.js",
+    "lint": "eslint ./**/*.js",
+    "lint:fix": "eslint ./**/*.js --fix",
+    "cover": "nyc --check-coverage npm test",
+    "cover:report": "nyc --check-coverage npm test",
+    "verify": "npm run lint && npm run test && npm run cover"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "eslint": "^5.10.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-node": "^8.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^5.1.1",
+    "nyc": "^13.1.0"
+  },
+  "nyc": {
+    "statements": 95,
+    "branches": 70,
+    "functions": 85,
+    "lines": 95,
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "watermarks": {
+      "statements": [
+        90,
+        95
+      ],
+      "branches": [
+        90,
+        95
+      ],
+      "functions": [
+        90,
+        95
+      ],
+      "lines": [
+        90,
+        95
+      ]
+    }
+  }
+}
