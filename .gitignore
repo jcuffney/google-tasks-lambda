@@ -3,3 +3,4 @@ auth
 packaged.yaml
 env.json
 events.yaml
+.DS_Store

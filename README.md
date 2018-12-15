@@ -11,25 +11,8 @@
 ## Architecture
 
 - CloudWatch Scheduled Events --> Lambda --> CloudWatch
-- Github --> CircleCI/TravisCI --> Cloudformation
-
-## Areas of Learning
-- Testing
-- Terraform
-- CircleCI
 
 ## Technical Requirements
-
-#### ENV vars needed:
-- TASK_LIST_ID
-- <API INFO + ACCOUNT INFO>
-
-#### Methods needed:
-clear() - clears compleated tasks (run once per day @ midmight)
-  - tasks.tasks.clear()
-addTask() - adds task to task list
-  - tasks.tasks.insert()
-moveUncompletedToToday() - moves any uncompleated task from the past to the current day (run once per day @ midmight)
 
 ### Tooling
 
@@ -44,43 +27,34 @@ CloudWatch Scheduled Events
 - fixed rate
 - cron expression ([Schedule Expressions Using Rate or Cron - AWS Lambda](https://docs.aws.amazon.com/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html))
 
-
 Event Payload:
 
 ```
 {
-  "taskList": "12341234",
   "title": "Example Task Title",
   "details": "Example Task Detail",
 }
 ```
 
-tasks will be due at the time that the lambada is executed.
+Tasks will be due at the time that the lambada is executed.
 
-`sam local invoke "AddTaskFunction" --event ./events/cw_scheduled_event.json`
-`sam local invoke "ClearCompletedTasksFunction" --event ./events/cw_scheduled_event.json`
+`sam local invoke "AddTaskFunction" --event ./events/cw_scheduled_event.json --env-vars env.json`
+`sam local invoke "ClearCompletedTasksFunction" --event ./events/cw_scheduled_event.json --env-vars env.json`
 
----
+## Authentication (One Time Only)
 
-## List of Events to Implement
+> In order to run this 
 
-- EveningTasks
-- Morning Tasks
-- Headspace Reminder
-  - Sunday Evening @ 5PM
-  - `cron(0 17 * * FRI *)`
-- Laundary Reminder
-  - Sunday Evening @ 5PM
-  - `cron(0 17 * * FRI *)`
-- Call Home Reminder
-  - Sunday Evening @ 5PM
-  - `cron(0 7 * * SAT *)`
-- Retail Relay Reminder
-  - Friday Morning @ 8AM
-  - `cron(0 6 * * FRI *)`
-- Financial Checkin Reminder
-  - Saturday Morning @ 6AM
-  - `cron(0 6 * * SAT *)`
-- Add Gym To Calendar
-  - Sunday Evening @ 5PM
-  - `cron(0 17 * * SUN *)` 
+1. Create a project and enable the API
+  - https://developers.google.com/tasks/quickstart/nodejs
+  - download the `credentials.json` and add it to the `/auth` directory
+2. go to `/auth` 
+3. run `npm i`
+4. `node index.js`
+5. follow the instructions in the terminal and then authorize the application to modify google tasks
+6. add the values to a file named `env.json` you can use `env.sample.json` as a starter.
+
+## Deployment Notes
+
+1. make sure the `--profile` argument is correct in and run `./deploy`
+2. run `./deploy`
