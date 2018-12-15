@@ -38,6 +38,31 @@ Resources:
                                 "details": "testing details"
                             }
 
+    ClearCompletedTasksFunction:
+        Type: AWS::Serverless::Function
+        Properties:
+            FunctionName: clear-completed-tasks-automation
+            Description: reoccuring google tasks clearing
+            CodeUri: clear_completed_tasks/
+            Handler: index.handler
+            Runtime: nodejs8.10
+            Environment:
+                Variables:
+                    # NOTE: when deploying, make sure these have values, but never commit
+                    CLIENT_ID:
+                    CLIENT_SECRET:
+                    ACCESS_TOKEN:
+                    REFRESH_TOKEN:
+                    EXPIRY_DATE:
+
+            Events:
+
+                # NOTE: suplemental events in non-commited file `events.yaml`
+                # copy them in before running `./deploy`
+                Midnight:
+                    Type: Schedule
+                    Properties:
+                        Schedule: cron(0 0 ? * * *)
 Outputs:
 
     AddTaskFunction:

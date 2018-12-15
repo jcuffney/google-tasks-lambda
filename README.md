@@ -1,12 +1,9 @@
 # Google Tasks Automation
 
-> Objective: Mimik Zapier Task Functionality
-
 [![js-standard-style](https://cdn.rawgit.com/standard/standard/master/badge.svg)](http://standardjs.com)
 
 ## Project Requirements:
 
-- I want to be able to share my code to be used by others
 - I want to be able to add a task to a task list at a specific time on a reoccuring basis
 - I want to have all compleated tasks automatically cleared from my task list every day
 - I want to have all events that were due in the past updated to be due today every day at midnight.
@@ -61,6 +58,7 @@ Event Payload:
 tasks will be due at the time that the lambada is executed.
 
 `sam local invoke "AddTaskFunction" --event ./events/cw_scheduled_event.json`
+`sam local invoke "ClearCompletedTasksFunction" --event ./events/cw_scheduled_event.json`
 
 ---
 
