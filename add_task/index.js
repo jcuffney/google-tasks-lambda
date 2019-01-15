@@ -28,10 +28,12 @@ exports.handler = async (event, context, callback) => {
   const due = new Date()
   due.setHours(due.getHours() - 8) // America/Los_Angeles
 
+  const cleanedTaskDetails = process.env.AWS_SAM_LOCAL ? JSON.parse(detail) : detail;
+
   const task = {
     tasklist: '@default',
     resource: {
-      ...JSON.parse(detail),
+      ...cleanedTaskDetails,
       due
     }
   }
