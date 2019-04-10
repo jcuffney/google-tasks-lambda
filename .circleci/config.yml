@@ -1,0 +1,153 @@
+version: 2
+
+defaults: &defaults
+  docker: 
+    - image: jcuffney/node-ci-image
+  working_directory: ~/repo
+
+jobs:
+
+  dependencies:
+    <<: *defaults
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: yarn install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+  build: 
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+      - run: npm run build
+      - save_cache:
+          paths:
+            - build
+          key: v1-build-{{ checksum "package.json" }}
+
+  lint: 
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+      - run: npm run lint
+
+  tests: 
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+      - run: npm run test
+
+  coverage: 
+    <<: *defaults
+    environment:
+      CC_TEST_REPORTER_ID: 09d9641bc46aa146a53d8dc6a1b94b113ebef20db13cec2f4fd2aee04e0e5f24
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+      - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter before-build
+      - run: npm run cover
+
+  validate_terraform: 
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run:
+          name: validate terraform
+          command: |
+            terraform init -input=false infrastructure/ 
+            terraform validate infrastructure/
+
+  deploy_infrastructure:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - run:
+          name: deploy infrastructure
+          command: |
+            terraform init -input=false infrastructure/
+            terraform apply -input=false -auto-approve infrastructure/ 
+
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v1-build-{{ checksum "package.json" }}
+
+      - deploy:
+          name: sync build to s3
+          command: |
+            aws s3 sync ./build s3://cuffney.com --delete
+
+      - deploy:
+          name: Create CloudFront Invalidation
+          command: |
+            aws cloudfront create-invalidation \
+              --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+              --paths "/*"
+
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - dependencies
+      - build:
+          requires:
+            - dependencies
+      - lint:
+          requires:
+            - dependencies
+      - tests:
+          requires:
+            - dependencies
+      - coverage:
+          requires:
+            - dependencies
+      - validate_terraform
+      - deploy_infrastructure:
+          requires: 
+            - dependencies
+            - build
+            - lint
+            - tests
+            - coverage
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - deploy_infrastructure
+          filters:
+            branches:
+              only: master
